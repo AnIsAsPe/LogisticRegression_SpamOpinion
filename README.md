@@ -11,6 +11,6 @@ Este corpus contiene:
 * 800 comentarios auténticos, de los cuáles 400 están clasificados como positivos y 400 como negativos
 * 800 comentarios falsos, igualmente dividio en 400 comentarios positvas y 400 negativos.
 
-La vectorización de los textos se realiza utilizando la técnica Bag of Words (BoW) o Bolsa de Palabras de manera que se obtiene una matriz de 1600 documentos por 3,528 palabras.
+La vectorización de los textos se realiza utilizando la técnica Bag of Words (BoW) o Bolsa de Palabras, de manera que se obtiene una matriz de 1600 documentos por 3,528 palabras.
 
-El conjunto de datos original puede ser descargado [aquí](https://myleott.com/op-spam.html). Este mismo ha sido también publicado por [Kaggle](https://www.kaggle.com/rtatman/deceptive-opinion-spam-corpus) en un archivo csv, que ha sido copiado en el presente repositorio.
+El conjunto de datos original puede ser descargado [aquí](https://myleott.com/op-spam.html). Este mismo ha sido también publicado por [Kaggle](https://www.kaggle.com/rtatman/deceptive-opinion-spam-corpus) en un archivo csv, el cual ha sido copiado en el presente repositorio.
