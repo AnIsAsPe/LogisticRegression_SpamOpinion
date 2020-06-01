@@ -8,8 +8,8 @@ Este corpus consiste en críticas falsas y autenticas de 20 hoteles de Chicago. 
 
 Este corpus contiene:
 
-800 comentarios auténticos, de los cuáles 400 están clasificados como positivos y 400 como negativos
-800 comentarios falsos, igualmente dividio en 400 comentarios positvas y 400 negativos.
+* 800 comentarios auténticos, de los cuáles 400 están clasificados como positivos y 400 como negativos
+* 800 comentarios falsos, igualmente dividio en 400 comentarios positvas y 400 negativos.
 
 La vectorización de los textos se realiza utilizando la técnica Bag of Words (BoW) o Bolsa de Palabras de manera que se obtiene una matriz de 1600 documentos por 3,528 palabras.
 
