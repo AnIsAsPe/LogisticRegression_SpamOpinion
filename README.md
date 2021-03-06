@@ -1,4 +1,8 @@
 # Clasificador binario de comentarios a hoteles según su autenticidad
+
+
+El presente repositorio se refiere a un curso sobre regresión lógistica, impartido en colaboración con el [Colegio de Matemáticas Bourbaki](https://www.colegio-bourbaki.com/) 
+
 Se utiliza regresión logistica con penalización Ridge y Lasso para realizar una clasificación binaria según la autenticidad de comentarios a hoteles, utilizando un corpus de 1600 opiniones a hoteles de Chicago. 
 Este corpus consiste en críticas falsas y autenticas de 20 hoteles de Chicago. Los datos fueron originalmente descritos en dos documentos de acuerdo con el sentimiento positivo o negativo de los mismos:
 
