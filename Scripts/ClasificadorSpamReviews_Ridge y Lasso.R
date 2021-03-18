@@ -18,7 +18,6 @@ library(glmnet)     # Para entrenear modelos lineales generalizados (GLM)
                     #con penalizacion 
 
 
-
 # 2. Lectura de los datos  =====================================================
 
 df <- read.csv(here("Datos","deceptive-opinion.csv"))
@@ -44,8 +43,6 @@ table(df$deceptive,df$polarity)
 
 corpus <- VCorpus (VectorSource(df$text)) #crear el corpus de opiniones
 
-inspect(corpus[100])  #ver características un elemento del corpus
-                      
 inspect(corpus[[100]]) #leer el documento del elemento 100 del corpus
 
 corpus[[100]]$content
@@ -251,8 +248,8 @@ clasifica_con_penalizacion <- function(penalizacion, lambda, datos){
   # probabilidad
   
   Z_evaluacion <- data.frame(zs, Z_pred_class, Z_pred_prob)
-  names(Z_evaluacion)[2] <- "clase"
-  names(Z_evaluacion)[3] <- "probabilidad"
+  names(Z_evaluacion)[2] <- "z_pred"
+  names(Z_evaluacion)[3] <- "z_pred_prob"
   
   # Evaluación
   
@@ -283,47 +280,62 @@ clasifica_con_penalizacion <- function(penalizacion, lambda, datos){
 
 # Obtener resultados para ambos regularizadores y distintas lambdas
 #(lambda_min_ridge, lambda_1se_ridge, cv_ridge$lambda[1], cv_ridge$lambda[10]...)
-#(lambda_min_ridge, lambda_1se_ridge, cv_ridge$lambda[1], cv_ridge$lambda[10]...)
+#(lambda_min_lasso, lambda_1se_lasso, cv_lasso$lambda[1], cv_lasso$lambda[10]...)
+
+   ## Ridge
 
 lambda = lambda_1se_ridge
 modelo = "Ridge"
 
-res_train <- clasifica_con_penalizacion(modelo,
+res_train_ridge <- clasifica_con_penalizacion(modelo,
                                         lambda,
                                         "entrenamiento") 
 
-res_test <- clasifica_con_penalizacion(modelo, 
+res_test_ridge <- clasifica_con_penalizacion(modelo, 
                                        lambda,
                                        "prueba")
 
+##Para ver los coeficientes
+coeff_ridge <- res_train_ridge[[2]]
 
+    ## Lasso
 
 lambda = lambda_1se_lasso
 modelo = "Lasso"
 
-res_train <- clasifica_con_penalizacion(modelo,
+res_train_lasso <- clasifica_con_penalizacion(modelo,
                                         lambda,
                                         "entrenamiento") 
 
-res_test <- clasifica_con_penalizacion(modelo, 
+res_test_lasso <- clasifica_con_penalizacion(modelo, 
                                        lambda,
                                        "prueba")
 
 
                               
-##Para ver los coeficientes
-coeficientes <- res_train[[2]]
+##Ver los coeficientes
+coeff_lasso <- res_train_lasso[[2]]
 
-view(coeficientes)
+## Comparar coefcientes de regresion ordinaria, ridge y lasso
+
+#Agregar razón de probabilidad o momios
+
+coeff_lasso[[3]] <- exp(coeff_lasso[[2]])  
+names(coeff_lasso) <- c('palabra', 'peso','razon_probabilidades')
+
+view(coeff_lasso)
 
 
-## Para guardar la predicción en términos de clase y probabilidad:
+## Para obtener la predicción en términos de clase y probabilidad:
 
 
 Z_evaluacion <- res_test[[3]]
 
 
-head(Z_evaluacion, 20)
+head(Z_evaluacion, 20) # si se obtiene una probabilidad mayor a 0.5 
+                        # la observación pertenece a la 2 clase (truthful)
+
+summary(df$deceptive)
 
 
 
