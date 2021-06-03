@@ -337,6 +337,12 @@ head(Z_evaluacion, 20) # si se obtiene una probabilidad mayor a 0.5
 
 summary(df$deceptive)
 
+#Curva ROC
+
+pred <- prediction(Z_evaluacion$z_pred_prob, Z_evaluacion$zs)
+perf <- performance(pred, "tpr", "fpr")
+plot(perf,colorize=FALSE, col="black") # visualización curva ROC
+
 
 
 
