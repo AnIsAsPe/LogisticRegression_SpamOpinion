@@ -8,14 +8,16 @@ library(tm)   #text mining (más información en:
               #https://miamioh.instructure.com/courses/38953/pages/text-mining)
 
 library (RColorBrewer)  #Requerido por wordcloud
-library(wordcloud)      #Para visualizar nubes de palabras
+library (wordcloud)      #Para visualizar nubes de palabras
 
 library(lattice)  #requerido por caret
 library(caret)    #Para dividir los datos en conjunto de prueba y entrenamiento
 
 library(Matrix)     #Requerido por Glmnet
 library(glmnet)     # Para entrenear modelos lineales generalizados (GLM) 
-                    #con penalizacion 
+                    # con penalizacion 
+library(ROCR)       # Para graficar curva ROC
+
 
 
 # 2. Lectura de los datos  =====================================================
@@ -43,9 +45,13 @@ table(df$deceptive,df$polarity)
 
 corpus <- VCorpus (VectorSource(df$text)) #crear el corpus de opiniones
 
-inspect(corpus[[100]]) #leer el documento del elemento 100 del corpus
+corpus[[100]] #leer el registro del documento 100 del corpus
 
 corpus[[100]]$content
+corpus[[100]]$meta
+
+inspect(corpus[[100]]) # permite inspeccionar información detallada de un documento, del corpus o de una matriz term-doc
+
 
 # 4.2 Preprocesamiento de texto -------------------------------------------
 
@@ -77,21 +83,17 @@ corpus <- tm_map (corpus, stripWhitespace)
 # cada texto (documentos))
 
 tdm <- TermDocumentMatrix(corpus, control = list(weighting = weightTfIdf))
+inspect(tdm)
 
-dim(tdm)
+dim(tdm)   
 
 tdm$dimnames$Terms
 
 #4.4 Reducir la dimensionalidad --------------------------------------------
 
-#La siguiente línea elimina términos que en el 90% de los docs no aparecen:
-#tdm_90 <- removeSparseTerms(tdm, 0.90) #113 términos restantes
-
-#La siguiente línea elimina términos que en el 99% de los docs no aparecen
-#tdm_99 <- removeSparseTerms(tdm, 0.99) #957 términos restantes
-
-#elimina términos que en el 99.9% de los docs no aparecen
-tdm_999 <- removeSparseTerms(tdm, 0.999) #3528 términos restantes
+#elimina todas las palabras que no aparecen en al menos 2 reseñas
+tdm_red <- removeSparseTerms(tdm, 0.9993) # (1599/1600) 
+dim(tdm_red)
 
 # 4.5 Visualizar nube de palabras -------------------------------------------
 
@@ -108,12 +110,12 @@ plot_wordclouds <- function(tdm){
                     colors = brewer.pal(8, "Dark2")))
 }
 
-plot_wordclouds(tdm = tdm_999)  
+plot_wordclouds(tdm = tdm_red)  
 
 
 # 4.6 Separar etiquetas(Z) de caracteristicas (X) -----------------------------
 
-dtm <- as.DocumentTermMatrix(tdm_999)
+dtm <- as.DocumentTermMatrix(tdm_red)
 
 X <- as.matrix(dtm)
 
@@ -143,7 +145,7 @@ length(Z_test)
 #6 Realizar una regresión logistica sin penalización ===========================
 
 or <- glmnet(X_train, Z_train, family = "binomial", alpha = 0, 
-             standarize = TRUE,lambda=0)  #alpha=0: Ridge; alpha=1: Lasso
+             standarize = TRUE, lambda=0)  #alpha=0: Ridge; alpha=1: Lasso
 
 #6.1  Predicción conjunto de entrenamiento -------------------------------------
 x = X_train
@@ -167,6 +169,7 @@ z = Z_test
 conjunto ='Prueba'
 
 Z_predicted <- predict(or, newx= x, type="class")
+Z_probabilidades <-  predict(or, newx = x, type ="response")
 
 # Evaluación
 accuracy <- mean(z == Z_predicted)
@@ -175,7 +178,12 @@ confusion <- caret::confusionMatrix(data = as.factor(Z_predicted),
                                     reference = z)
 
 fourfoldplot(confusion$table, main=paste("SET: ",conjunto, " Lambda = 0", 
-                                         "   Accuracy =", accuracy*100, "%"))  
+                                         "   Accuracy =", accuracy*100, "%"))
+#Curva ROC
+
+pred <- prediction(Z_probabilidades, z)
+perf <- performance(pred, "tpr", "fpr")
+plot(perf,colorize=FALSE, col="black") # visualización curva ROC
 
 
 #Coeficientes
@@ -221,7 +229,6 @@ modelos_lasso <- cv_lasso$glmnet.fit
 # 8. Evaluación de los modelos =================================================
 
 clasifica_con_penalizacion <- function(penalizacion, lambda, datos){
-
   # penalizacion: "Lasso" o "Ridge"
   # lambda: valor de lambda a usar
   # datos: "entrenamiento" o "prueba"
@@ -300,7 +307,7 @@ coeff_ridge <- res_train_ridge[[2]]
 
     ## Lasso
 
-lambda = lambda_1se_lasso
+lambda = lambda_min_lasso
 modelo = "Lasso"
 
 res_train_lasso <- clasifica_con_penalizacion(modelo,
@@ -318,23 +325,18 @@ coeff_lasso <- res_train_lasso[[2]]
 
 ## Comparar coefcientes de regresion ordinaria, ridge y lasso
 
-#Agregar razón de probabilidad o momios
-
+#Razón de probabilidad o momios de cada término 
 coeff_lasso[[3]] <- exp(coeff_lasso[[2]])  
 names(coeff_lasso) <- c('palabra', 'peso','razon_probabilidades')
 
 view(coeff_lasso)
 
 
-## Para obtener la predicción en términos de clase y probabilidad:
+## Para ver los resultados de la predicción en términos de clase y probabilidad:
 
-
-Z_evaluacion <- res_test[[3]]
-
-
+Z_evaluacion <- res_test_lasso[[3]]
 head(Z_evaluacion, 20) # si se obtiene una probabilidad mayor a 0.5 
-                        # la observación pertenece a la 2 clase (truthful)
-
+                       # la observación pertenece a la 2 clase (truthful)
 summary(df$deceptive)
 
 #Curva ROC
