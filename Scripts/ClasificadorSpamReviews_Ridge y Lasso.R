@@ -342,14 +342,13 @@ summary(df$deceptive)
 #Curva ROC
 
 pred <- prediction(Z_evaluacion$z_pred_prob, Z_evaluacion$zs)
-perf <- performance(pred, "tpr", "fpr")  
+perf <- performance(pred, "tpr", "fpr") 
 plot(perf,colorize=FALSE, col="black") # visualización curva ROC
 
-# Podemos ahora construir una tabla con los distintos umbrales, fpr y 
-# perf es un objeto class S4, podemos usar @ para acceder a los elementos
-df.umbral <- data.frame(umbral = perf@alpha.values[[1]], 
-                        fpr = perf@x.values[[1]],
-                        tpr = perf@y.values[[1]])
+# Podemos ahora construir una tabla con los distintos umbrales, fpr y tpr 
+df.umbral <- data.frame(umbral = perf@alpha.values[[1]],   # perf es un objeto clase S4, 
+                        fpr = perf@x.values[[1]],          # por lo que podemos usar @ para 
+                        tpr = perf@y.values[[1]])          # acceder a los elementos
 
 
 
