@@ -1,5 +1,30 @@
 # INTRODUCCIÓN A R  ##########################################################
 
+# 0. ANTES QUE NADA ###########################################################
+
+# Operador de Asignación y principales tipos de variables
+
+# (Alt + -) es un shortcut para escribir el operador <-
+
+promedio <- 8.3     # numeric
+
+grado <- 2          # numeric
+
+nombre <- 'Mario'   # character
+
+egresado <- FALSE   # logical
+
+
+# Funciones predefinidas
+
+class(promedio)
+
+(sqrt(4))
+
+round(2.35,1)
+
+args(round)
+
 
 # 1. VECTORES ================================================================
 
@@ -8,6 +33,16 @@
 
 var1 <- c (6, 20, 4)
 
+length(var1)  # longitud del vector
+
+class(var1)   # clase de los elementos que contiene el vector
+
+str(var1)     # estructura del objeto y sus elementos
+
+var1 <- c(var1, 15) # agrega elemento al final de un vector
+
+# qué pasa si añado un elemento de otra clase
+(c(var1, 'gato'))
 var2 <- 2:6
 
 var.3 <- seq (2,3, by=.2)
