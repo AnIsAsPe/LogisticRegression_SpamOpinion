@@ -209,7 +209,6 @@ lambda_1se_ridge <- cv_ridge$lambda.1se
 
 #guardamos todos los modelos de la validación cruzada
 modelos_ridge <- cv_ridge$glmnet.fit
-plot(cv_ridge, xvar=lambda)
 
 #8. Regresión Logística - Lasso ------------------------------------------------
 
